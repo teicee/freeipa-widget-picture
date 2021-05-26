@@ -43,7 +43,11 @@ IPA.picture_widget = function (spec) {
 		
 		// editable UI:
 		that.input_group = $('<div/>').appendTo(container);
-		if (that.debug) that.input_debug = $('<textarea/>', {rows:15, width:'100%'}).appendTo(that.input_group);
+		if (that.debug) that.input_debug = $('<textarea/>', {
+			rows:       15,
+			width:      '100%'
+		}).appendTo(that.input_group);
+		
 		that.input = $('<input/>', {
 			type:       "file",
 			'class':    "hidden",
@@ -51,14 +55,6 @@ IPA.picture_widget = function (spec) {
 			name:       that.name,
 			id:         id
 		}).appendTo(that.input_group);
-		
-		that.input.on('change', function() {
-			that.display_control.css({ opacity: 0.5 });
-			var reader = new FileReader();
-			reader.addEventListener("load",      function(){ that.update([ this.result.replace(/^data:.*base64,/,'') ]); }, false);
-			reader.addEventListener("loadend",   function(){ that.display_control.css({ opacity: 1.0 }); });
-			reader.readAsDataURL( this.files[0] );
-		});
 		
 		that.input_group_btn = $('<div/>', {
 			'class': 'input-group-btn'
@@ -86,6 +82,22 @@ IPA.picture_widget = function (spec) {
 		that.create_error_link(container);
 		that.set_enabled(that.enabled);
 		that.update_read_only();
+		
+		that.flag_displayed = false;
+		that.input.on('change', function() {
+			if (! this.files.length) return;
+			that.display_control[0].src = URL.createObjectURL( this.files[0] );
+			that.display_control.css({ opacity: 0.5 }).show();
+			that.flag_displayed = true;
+			var reader = new FileReader();
+			reader.addEventListener("load", function() {
+				that.update([ this.result.replace(/^data:.*base64,/,'') ]);
+			}, false);
+			reader.readAsDataURL( this.files[0] );
+		});
+		that.display_control.on('load', function() {
+			URL.revokeObjectURL(this.src);
+		});
 	};
 
 	/**
@@ -97,37 +109,50 @@ IPA.picture_widget = function (spec) {
 	};
 
 	/**
+	 * Convert base64-encoded binary string into a Blob object.
+	 */
+	that.blob_from_base64 = function(b64data) {
+		var byteArrays = [];
+		var byteCharacters = atob(b64data);
+		for (var offset = 0; offset < byteCharacters.length; offset += 512) {
+			var slice = byteCharacters.slice(offset, offset + 512);
+			var byteNumbers = new Array(slice.length);
+			for (var i = 0; i < slice.length; i++) byteNumbers[i] = slice.charCodeAt(i);
+			byteArrays.push(new Uint8Array(byteNumbers));
+		}
+		return new Blob(byteArrays);
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	that.update = function(values) {
-		var value = values && values.length ? values[0] : '';
-		if (value !== '') {
-			that.display_control.prop('src', 'data:image/jpeg;base64,' + value).data('empty',false).show();
-			that.input_remove.show();
-		} else {
-			that.display_control.prop('src', 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=').data('empty',true).hide();
-			that.input_remove.hide();
-		}
-		if (that.input_debug) that.input_debug.val(value);
-		that.on_value_changed(values);
+		if (!values || !values.length) return that.clear();
+		that.display_control.css({ opacity: 0.5 });
+		if (that.input_debug) that.input_debug.val(values[0]);
+		if (!that.flag_displayed) that.display_control[0].src = URL.createObjectURL( that.blob_from_base64(values[0]) );
+		that.flag_displayed = false;
+		that.display_control.data('empty',false).css({ opacity: 1.0 }).show();
+		that.input_remove.show();
+		that.on_value_changed(values); // ([ values[0] ]);
 	};
 
 	/**
 	 * @inheritDoc
 	 */
 	that.save = function() {
-		if (that.display_control.data('empty')) return [];
-		return [ that.display_control.prop('src').replace(/^data:.*base64,/, '') ];
+		return that.value;
 	};
 
 	/**
 	 * @inheritDoc
 	 */
 	that.clear = function() {
-		that.input.val('');
-		if (that.input_debug) that.input_debug.val('');
-		that.display_control.prop('src', 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=').data('empty',true).hide();
+		that.display_control[0].src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='; // 1px GIF
+		that.display_control.data('empty',true).hide();
 		that.input_remove.hide();
+		if (that.input_debug) that.input_debug.val('');
+		that.input.val('');
 		that.on_value_changed([]);
 	};
 
