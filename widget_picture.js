@@ -1,5 +1,9 @@
-// FreeIPA extension: Widget picture (file upload & preview).
-
+/**
+ * FreeIPA extension: Widget picture (file upload & preview).
+ *
+ * Copyright 2021 téïcée SARL <https://www.teicee.com>
+ * Written by Grégory MARIGOT <gmarigot at teicee.com>
+ */
 define(
 	[
 		'freeipa/ipa',

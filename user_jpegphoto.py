@@ -1,4 +1,7 @@
 ## FreeIPA extension: User jpegphoto (avatar).
+##
+## Copyright 2021 téïcée SARL <https://www.teicee.com>
+## Written by Grégory MARIGOT <gmarigot at teicee.com>
 
 from ipaserver.plugins.user import user
 from ipalib import Bytes, _
