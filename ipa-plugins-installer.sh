@@ -1,5 +1,8 @@
 #!/bin/sh
 ### FreeIPA extensions: Automatic plugins installer.
+###
+### Copyright 2021 téïcée SARL <https://www.teicee.com>
+### Written by Grégory MARIGOT <gmarigot at teicee.com>
 
 ### Variables
 DIR_SRC_PLUGINS="$(dirname $0)"
