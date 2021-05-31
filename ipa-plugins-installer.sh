@@ -4,7 +4,7 @@
 ### Variables
 DIR_SRC_PLUGINS="$(dirname $0)"
 DIR_IPA_JS="/usr/share/ipa/ui/js"
-DIR_IPA_PY="$(ls -1 -d /usr/lib/python*/*-packages/ipaserver/plugins |head -n1)"
+DIR_IPA_PY="$(ls -1 -d /usr/lib/python*/*-packages/ipaserver/plugins 2>/dev/null |head -n1)"
 ALL_PLUGIN="$(ls -1 "${DIR_SRC_PLUGINS}/"*.js "${DIR_SRC_PLUGINS}/"*.py |sed 's|^.*/||' |sed 's/\.\(js\|py\)$//' |sort |uniq |tr '\n' ' ')"
 LST_PLUGIN=
 OPT_RELOAD=
@@ -23,6 +23,7 @@ error() {
 }
 
 ### Arguments
+[ $# -eq 0 ] && usage
 while [ $# -gt 0 ]; do
 	case "${1}" in
 		-h | --help    ) usage ;;
