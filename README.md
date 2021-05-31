@@ -1,5 +1,6 @@
 # FreeIPA extensions : Widget Picture with User JpegPhoto plugins
 
+
 ## Introduction
 
 On a FreeIPA directory, you can have some attributes to store images.
@@ -37,6 +38,7 @@ Or if you want to install all plugins provided, including the use of the `jpegph
 ```
 ./ipa-plugins-installer.sh --all --reload
 ```
+
 
 ## License
 
