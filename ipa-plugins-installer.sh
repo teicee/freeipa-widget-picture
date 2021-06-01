@@ -3,12 +3,25 @@
 ###
 ### Copyright 2021 téïcée SARL <https://www.teicee.com>
 ### Written by Grégory MARIGOT <gmarigot at teicee.com>
+###
+### This program is free software: you can redistribute it and/or modify
+### it under the terms of the GNU Affero General Public License as
+### published by the Free Software Foundation, either version 3 of the
+### License, or (at your option) any later version.
+###
+### This program is distributed in the hope that it will be useful,
+### but WITHOUT ANY WARRANTY; without even the implied warranty of
+### MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+### GNU Affero General Public License for more details.
+###
+### You should have received a copy of the GNU Affero General Public License
+### along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ### Variables
 DIR_SRC_PLUGINS="$(dirname $0)"
 DIR_IPA_JS="/usr/share/ipa/ui/js"
 DIR_IPA_PY="$(ls -1 -d /usr/lib/python*/*-packages/ipaserver/plugins 2>/dev/null |head -n1)"
-ALL_PLUGIN="$(ls -1 "${DIR_SRC_PLUGINS}/"*.js "${DIR_SRC_PLUGINS}/"*.py |sed 's|^.*/||' |sed 's/\.\(js\|py\)$//' |sort |uniq |tr '\n' ' ')"
+ALL_PLUGIN="$(ls -1 "${DIR_SRC_PLUGINS}/"*.js "${DIR_SRC_PLUGINS}/"*.py 2>/dev/null |sed 's|^.*/||' |sed 's/\.\(js\|py\)$//' |sort |uniq |tr '\n' ' ')"
 LST_PLUGIN=
 OPT_RELOAD=
 
