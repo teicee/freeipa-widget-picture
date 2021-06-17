@@ -27,7 +27,7 @@ OPT_RELOAD=
 
 ### Functions
 usage() {
-	printf "\nUsage: ${0} <plugin...> [--reload]\n" >&2
+	printf "\nUsage: ${0} <plugin...|--all> [--reload]\n" >&2
 	printf "  -a, --all     :  Install all available plugins\n"
 	printf "  -r, --reload  :  Restart FreeIPA services\n"
 	printf "  -h, --help    :  Display this help message\n"
@@ -79,6 +79,7 @@ done
 if [ -n "${OPT_RELOAD}" ]; then
 	printf "\n=== Restarting IPA services...\n"
 	systemctl restart ipa
+	ipactl status
 fi
 [ -d ~/.cache/ipa ] && rm -rf ~/.cache/ipa
 
