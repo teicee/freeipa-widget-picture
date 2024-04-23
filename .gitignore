@@ -1,0 +1,23 @@
+### Dev files
+/_*
+*.diff
+*.bak
+*.old
+*.tmp
+*~
+.~*
+
+### Editors/IDE
+.idea*
+.project
+.vscode
+*.ntvs*
+*.njsproj
+*.sln
+*.suo
+*.swp
+*.swo
+
+### Project
+__pycache__
+

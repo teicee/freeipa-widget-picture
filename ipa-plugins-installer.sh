@@ -17,8 +17,10 @@
 ### You should have received a copy of the GNU Affero General Public License
 ### along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+cd "$(dirname "$0")"
+
 ### Variables
-DIR_SRC_PLUGINS="$(dirname $0)"
+DIR_SRC_PLUGINS="${PWD}"
 DIR_IPA_JS="/usr/share/ipa/ui/js"
 DIR_IPA_PY="$(ls -1 -d /usr/lib/python*/*-packages/ipaserver/plugins 2>/dev/null |head -n1)"
 ALL_PLUGIN="$(ls -1 "${DIR_SRC_PLUGINS}/"*.js "${DIR_SRC_PLUGINS}/"*.py 2>/dev/null |sed 's|^.*/||' |sed 's/\.\(js\|py\)$//' |sort |uniq |tr '\n' ' ')"
@@ -35,7 +37,7 @@ usage() {
 	exit 1
 }
 error() {
-	printf "\nERROR: ${1}!\n\n" >&2; exit 1
+	printf "\n*** ERROR: ${1}!\n\n" >&2; exit 1
 }
 
 ### Arguments
@@ -58,29 +60,36 @@ done
 
 ### Installations
 for PLUGIN in ${LST_PLUGIN}; do
-	printf "\n=== Installing IPA plugin '${PLUGIN}'...\n"
+	printf "\n===\n=== Installing IPA plugin '${PLUGIN}'...\n===\n"
 	PLUGIN_JS="${DIR_SRC_PLUGINS}/${PLUGIN}.js"
 	PLUGIN_PY="${DIR_SRC_PLUGINS}/${PLUGIN}.py"
 	
 	if [ -f "${PLUGIN_JS}" ]; then
-		printf "  - installing javascript script\n"
+		printf "\n>>> Installing javascript script:\n"
 		DIR_PLUGIN="${DIR_IPA_JS}/plugins/${PLUGIN}"
 		[ -d "${DIR_PLUGIN}" ] || mkdir -p "${DIR_PLUGIN}"
 		cp -v "${PLUGIN_JS}" "${DIR_PLUGIN}/"
 	fi
 	
 	if [ -f "${PLUGIN_PY}" ]; then
-		printf "  - installing python script\n"
+		printf "\n>>> Installing python script:\n"
 		cp -v "${PLUGIN_PY}" "${DIR_IPA_PY}/"
+		cd "${DIR_IPA_PY}/"
+		printf "\n>>> Compiling python script:\n"
+		python -m compileall "${PLUGIN}"* >/dev/null && python -O -m compileall "${PLUGIN}"*
 	fi
 done
 
 ### Reloading
 if [ -n "${OPT_RELOAD}" ]; then
-	printf "\n=== Restarting IPA services...\n"
-	systemctl restart ipa
+#	printf "\n=== Restarting IPA services...\n"
+#	systemctl restart ipa
+	printf "\n===\n=== Reloading IPA services...\n===\n"
+	apachectl graceful
+	
 	ipactl status
 fi
+printf "\n===\n=== Refresh IPA caches...\n===\n"
 [ -d ~/.cache/ipa ] && rm -rf ~/.cache/ipa
 
-printf "\n=== Done.\n\n"
+printf "\n>>> Done.\n\n"

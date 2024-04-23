@@ -39,7 +39,7 @@ Or if you want to install all plugins provided, including the use of the `jpegph
 ./ipa-plugins-installer.sh --all --reload
 ```
 
-Note: the plugins are developed, tested and used with FreeIPA version 4.8.
+Note: the plugins are developed, tested and used with FreeIPA version `4.8` and `4.10`.
 
 
 ## License
