@@ -20,9 +20,11 @@
 define(
 	[
 		'freeipa/phases',
-		'freeipa/user'
+//		'freeipa/user'      /* user not available on all pages (ex: '/ipa/migration/') */
+		'freeipa/ipa'
 	],
-function(phases, user) {
+function(phases, IPA) {
+	var user_jpegphoto_plugin = {};
 
 	// helper function
 	function get_item(array, attr, value) {
@@ -33,10 +35,12 @@ function(phases, user) {
 	}
 
 	// Adds 'jpegPhoto' field into user details facet
-	user.add_jpegphoto_pre_op = function() {
-		var facet   = get_item(user.entity_spec.facets, '$type', 'details');
+	user_jpegphoto_plugin.add_jpegphoto_pre_op = function() {
+		if (IPA.user === undefined) return true;
+		
+		var facet   = get_item(IPA.user.entity_spec.facets, '$type', 'details');
 		if (! facet) return;
-		var section = get_item(facet.sections,          'name',  'identity');
+		var section = get_item(facet.sections,             'name',  'identity');
 		if (! section) return;
 		
 		section.fields.push({
@@ -50,6 +54,6 @@ function(phases, user) {
 		return true;
 	};
 
-	phases.on('customization', user.add_jpegphoto_pre_op);
-	return user;
+	phases.on('customization', user_jpegphoto_plugin.add_jpegphoto_pre_op);
+	return user_jpegphoto_plugin;
 });
