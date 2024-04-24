@@ -1,5 +1,5 @@
 /**
- * FreeIPA extension: User jpegphoto (avatar).
+ * FreeIPA extension: User jpegphoto attribute (avatar).
  *
  * Copyright 2021 téïcée SARL <https://www.teicee.com>
  * Written by Grégory MARIGOT <gmarigot at teicee.com>
@@ -17,13 +17,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-define(
-	[
-		'freeipa/phases',
-//		'freeipa/user'      /* user not available on all pages (ex: '/ipa/migration/') */
-		'freeipa/ipa'
-	],
-function(phases, IPA) {
+define([
+	'freeipa/phases',
+//	'freeipa/user'      /* user not available on all pages (ex: '/ipa/migration/') */
+	'freeipa/ipa'
+], function(phases, IPA) {
 	var user_jpegphoto_plugin = {};
 
 	// helper function
@@ -40,7 +38,7 @@ function(phases, IPA) {
 		
 		var facet   = get_item(IPA.user.entity_spec.facets, '$type', 'details');
 		if (! facet) return;
-		var section = get_item(facet.sections,             'name',  'identity');
+		var section = get_item(facet.sections,              'name', 'identity');
 		if (! section) return;
 		
 		section.fields.push({

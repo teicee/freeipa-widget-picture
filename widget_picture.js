@@ -17,17 +17,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-define(
-	[
-		'freeipa/ipa',
-		'freeipa/phases',
-		'freeipa/widget',
-		'freeipa/reg',
-		'freeipa/text',
-		'dojo/on',
-		'exports'
-	],
-function(IPA, phases, widget, reg, text, on, exp) {
+define([
+	'freeipa/ipa',
+	'freeipa/phases',
+	'freeipa/widget',
+	'freeipa/reg',
+	'freeipa/text',
+	'dojo/on',
+	'exports'
+], function(IPA, phases, widget, reg, text, on, exp) {
 
 
 /**

@@ -1,4 +1,6 @@
-# FreeIPA extensions : Widget Picture with User JpegPhoto plugins
+# FreeIPA extensions : Picture widget & user's jpegPhoto plugins
+
+**Note:** the plugins are developed, tested and used with FreeIPA version `4.8` and `4.10`.
 
 
 ## Introduction
@@ -21,25 +23,36 @@ It is designed to work with attributes containing binary data of a picture (Jpeg
 
 If offers a suitable interface to edit image with:
 
-*	An image HTML tag to display the current data (read-only mode or preview for edit)
-*	An file input HTML tag to select a local image file to upload into the attribute
+-	An image HTML tag to display the current data (read-only mode or preview for edit)
+-	An file input HTML tag to select a local image file to upload into the attribute
 
 
 ## Installation
 
-You can use the shell script `./ipa-plugins-installer.sh` to install the FreeIPA plugins.
+To install, clone this repository or download and extract an archive on the IPA server.
+You can use the shell script `./ipa-plugins-installer.sh` to install the plugins:
+```
+Usage: ./ipa-plugins-installer.sh <plugin...|--all> [--reload|--no-reload]
+  -a, --all         :  Install all available plugins
+  -r, --reload      :  Force the FreeIPA services reload
+  -R, --no-reload   :  Disable the FreeIPA services reload
+  -h, --help        :  Display this help message
 
-If you only want to install the Javascript widget to manage picture fields in the UI:
+Available plugins: user_jpegphoto widget_picture
+```
+So you can just run this command:
+```
+./ipa-plugins-installer.sh --all
+```
+
+If you only want to install the Javascript widget to manage picture fields in the UI,
+without the extension to use the `jpegphoto` attribute (CLI & webUI) on users objects:
 ```
 ./ipa-plugins-installer.sh widget_picture --reload
 ```
 
-Or if you want to install all plugins provided, including the use of the `jpegphoto` attribute on users:
-```
-./ipa-plugins-installer.sh --all --reload
-```
-
-Note: the plugins are developed, tested and used with FreeIPA version `4.8` and `4.10`.
+**Note:** By default (without `--reload|--no-reload`) the "reload" actions are automatic:
+running `apachectl graceful` if the Python script was installed/updated.
 
 
 ## License
