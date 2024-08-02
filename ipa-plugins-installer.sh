@@ -22,6 +22,7 @@ cd "$(dirname "${0}")"
 ### Variables
 DIR_SRC_PLUGINS="${PWD}"
 DIR_IPA_LD="/usr/share/ipa/schema.d"
+DIR_IPA_UP="/usr/share/ipa/updates"
 DIR_IPA_JS="/usr/share/ipa/ui/js"
 DIR_IPA_PY="$(ls -1 -d /usr/lib/python*/*-packages/ipaserver/plugins 2>/dev/null |head -n1)"
 ALL_PLUGIN="$(ls -1 "${DIR_SRC_PLUGINS}/"*.js "${DIR_SRC_PLUGINS}/"*.py 2>/dev/null |sed 's|^.*/||' |sed 's/\.\(js\|py\)$//' |sort |uniq |tr '\n' ' ')"
@@ -29,12 +30,12 @@ ALL_PLUGIN="$(ls -1 "${DIR_SRC_PLUGINS}/"*.js "${DIR_SRC_PLUGINS}/"*.py 2>/dev/n
 ### ANSI Colors
 COL_NORM='' COL_HEAD='' COL_INFO='' COL_WARN='' COL_CRIT='' COL_DONE=''
 if [ "x${TERM}" != "xdumb" ]; then
-	COL_NORM='\033[0;00m'   # default
-	COL_HEAD='\033[1;36m'   # cyan
-	COL_INFO='\033[1;34m'   # blue
-	COL_WARN='\033[1;33m'   # yellow
-	COL_CRIT='\033[1;31m'   # red
-	COL_DONE='\033[1;32m'   # green
+	COL_NORM='\e[0;00m'   # default
+	COL_HEAD='\e[1;36m'   # cyan
+	COL_INFO='\e[1;34m'   # blue
+	COL_WARN='\e[1;33m'   # yellow
+	COL_CRIT='\e[1;31m'   # red
+	COL_DONE='\e[1;32m'   # green
 fi
 
 ### Functions
@@ -81,12 +82,13 @@ done
 
 ### Verifications
 [ -n "${DIR_IPA_LD}" -a -d "${DIR_IPA_LD}" ] || p_error "Unable to detect FreeIPA LD plugins folder"
+[ -n "${DIR_IPA_UP}" -a -d "${DIR_IPA_UP}" ] || p_error "Unable to detect FreeIPA UP plugins folder"
 [ -n "${DIR_IPA_PY}" -a -d "${DIR_IPA_PY}" ] || p_error "Unable to detect FreeIPA PY plugins folder"
 [ -n "${DIR_IPA_JS}" -a -d "${DIR_IPA_JS}" ] || p_error "Unable to detect FreeIPA JS plugins folder"
 [ -z "${LST_PLUGIN}" ] && p_error "Plugins list to install is empty"
 
 ### Installations
-NEW_LD='' NEW_PY='' NEW_JS=''
+NEW_LD='' NEW_UP='' NEW_PY='' NEW_JS=''
 for PLUGIN in ${LST_PLUGIN}; do
 	p_title "Installing IPA plugin '${PLUGIN}'..."
 	
@@ -95,6 +97,13 @@ for PLUGIN in ${LST_PLUGIN}; do
 		p_tellme "Installing schema modifications:"
 		diff -q -N "${PLUGIN_LD}" "${DIR_IPA_LD}/75-${PLUGIN}.ldif" || NEW_LD=X
 		cp -v "${PLUGIN_LD}" "${DIR_IPA_LD}/75-${PLUGIN}.ldif"
+	fi
+	
+	PLUGIN_UP="${DIR_SRC_PLUGINS}/${PLUGIN}.acl"
+	if [ -f "${PLUGIN_UP}" ]; then
+		p_tellme "Installing acls updates:"
+		diff -q -N "${PLUGIN_UP}" "${DIR_IPA_UP}/75-${PLUGIN}.update" || NEW_UP=X
+		cp -v "${PLUGIN_UP}" "${DIR_IPA_UP}/75-${PLUGIN}.update"
 	fi
 	
 	PLUGIN_PY="${DIR_SRC_PLUGINS}/${PLUGIN}.py"
@@ -122,11 +131,13 @@ done
 p_title "Reloading IPA services..."
 if [ -z "${OPT_RELOAD}" ]; then
 	if   [ -n "${NEW_LD}" ]; then p_warnme "[reload disabled] You should run the command 'ipa-server-upgrade'"
+	elif [ -n "${NEW_UP}" ]; then p_warnme "[reload disabled] You should run the command 'ipa-server-upgrade'"
 	elif [ -n "${NEW_PY}" ]; then p_warnme "[reload disabled] You should run the command 'apachectl graceful'"
 	fi
 elif [ "${OPT_RELOAD}" = 'auto' ]; then
-	if   [ -n "${NEW_LD}" ]; then p_tellme "Upgrade IPA server (reload schema and much more !)..."; ipa-server-upgrade
-	elif [ -n "${NEW_PY}" ]; then p_tellme "Reload Apache wsgi child processes for python scripts..."; apachectl graceful
+	if   [ -n "${NEW_LD}" ]; then p_tellme "Upgrade IPA server (reload schema and much more !)..."    ; ipa-server-upgrade
+	elif [ -n "${NEW_UP}" ]; then p_tellme "Upgrade IPA server (apply acls and much more !)..."       ; ipa-server-upgrade
+	elif [ -n "${NEW_PY}" ]; then p_tellme "Reload Apache wsgi child processes for python scripts..." ; apachectl graceful
 	fi
 else ipa-server-upgrade ## force reload
 fi

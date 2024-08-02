@@ -1,0 +1,4 @@
+# Add an explicit self-service ACI to allow writing to jpegphoto attribute
+# for the owner of the object
+dn: cn=users,cn=accounts,$SUFFIX
+add:aci: (targetattr = "jpegphoto")(version 3.0;acl "selfservice:Users can manage their own avatar";allow (add, write) userdn = "ldap:///self";)
